@@ -27,7 +27,7 @@ window.FACTORY_BOARD_CONFIG = {
       id: 'dart',
       repo: 'epam/dmtools-dart',
       name: 'dmtools-dart',
-      stateUrl: 'https://raw.githubusercontent.com/epam/dmtools-dart/factory-data/data/dart-state.json',
+      stateUrl: 'https://raw.githubusercontent.com/epam/dmtools-dart/factory-state/data/dart-state.json',
       accent: '#33b077'
     }
   ],
