@@ -37,7 +37,8 @@
       <span class="live" id="live-dot" title="auto-refresh"></span>
     </div>
     <div class="topbar-right">
-      <a class="lifecycle-link" href="pipeline.html" target="_blank" rel="noopener" title="PR lifecycle diagram (archify)">🧭 lifecycle</a>
+      <button class="view-btn" id="view-btn" title="toggle lanes / lifecycle diagram view">🧭 diagram</button>
+      <a class="lifecycle-link" href="pipeline.html" target="_blank" rel="noopener" title="full PR lifecycle diagram (archify)">🧭 full</a>
       <span class="clock" id="next-refresh"></span>
       <span class="clock" id="clock">—</span>
       <button class="theme-btn" id="theme-btn" title="toggle theme">◐</button>
@@ -52,7 +53,17 @@
       <span class="pill" id="counts-pill"></span>
       <span class="pill" id="repo-pill"></span>
     </section>
+    <div id="tt-banner" class="tt-banner" hidden></div>
+    <section id="timetravel" class="tt-bar" hidden>
+      <button id="tt-play" class="tt-btn" title="play through ticks">⏵</button>
+      <button id="tt-prev" class="tt-btn" title="one tick back">◀</button>
+      <input id="tt-slider" class="tt-slider" type="range" min="0" max="0" value="0" step="1">
+      <button id="tt-next" class="tt-btn" title="one tick forward">▶</button>
+      <button id="tt-live" class="tt-btn tt-live" title="back to live">● LIVE</button>
+      <span class="tt-label" id="tt-label">LIVE</span>
+    </section>
     <div class="lanes" id="lanes"></div>
+    <div class="diagram" id="diagram" hidden></div>
     <p class="error" id="error" hidden></p>
   </main>
 
