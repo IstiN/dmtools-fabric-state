@@ -32,6 +32,7 @@
   var statusEl = document.getElementById('statusline');
   var active = 0;
   var cache = {};
+  var nextRefreshAt = Date.now() + (CFG.refreshMs || 60000);
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -47,6 +48,31 @@
     if (s < 3600) return Math.round(s / 60) + 'm ago';
     if (s < 86400) return Math.round(s / 3600) + 'h ago';
     return Math.round(s / 86400) + 'd ago';
+  }
+
+  // Stage trail: labels -> ordered lifecycle stages (pipeline.html diagram).
+  var STAGES = [
+    { id: 'dev',        title: 'dev',        labels: ['in progress'] },
+    { id: 'review',     title: 'review',     labels: ['ai_pr_reviewed'] },
+    { id: 'queue',      title: 'queue',      labels: ['pr_approved'] },
+    { id: 'validating', title: 'validating', labels: ['ai_validating'] },
+    { id: 'green',      title: 'green',      labels: ['ai_validated'] },
+    { id: 'merged',     title: 'merged',     labels: ['merged'] }
+  ];
+
+  function trail(c) {
+    var labels = c.labels || [];
+    var cur = -1;
+    var cells = STAGES.map(function (s, i) {
+      if (s.labels.some(function (l) { return labels.indexOf(l) >= 0; })) cur = i;
+      return s;
+    });
+    if (cur < 0) return '';
+    return '<div class="trail" title="lifecycle stage">' +
+      cells.map(function (s, i) {
+        var st = i < cur ? 'done' : (i === cur ? 'cur' : 'todo');
+        return '<span class="st ' + st + '">' + esc(s.title) + '</span>';
+      }).join('<span class="sep">\u203a</span>') + '</div>';
   }
 
   function verdictClass(v) {
@@ -68,7 +94,7 @@
     return '<a class="card" href="' + CFG.prUrl(f.repo, c.pr) + '" target="_blank" rel="noopener">' +
       '<div class="card-top">' + pos + '<span class="pr">!' + esc(c.pr) + '</span>' +
       '<span class="title">' + esc(c.title || '') + '</span></div>' +
-      '<div class="labels">' + badges + '</div>' + checks + '</a>';
+      '<div class="labels">' + badges + '</div>' + trail(c) + checks + '</a>';
   }
 
   function render(f, st) {
@@ -147,6 +173,9 @@
   function tickClock() {
     document.getElementById('clock').textContent =
       new Date().toLocaleTimeString();
+    var left = Math.max(0, Math.ceil((nextRefreshAt - Date.now()) / 1000));
+    var el = document.getElementById('next-refresh');
+    if (el) el.textContent = 'refresh in ' + left + 's';
   }
 
   document.getElementById('theme-btn').onclick = function () {
@@ -160,5 +189,8 @@
   setInterval(tickClock, 1000);
   tabs();
   load();
-  setInterval(load, CFG.refreshMs || 60000);
+  setInterval(function () {
+    nextRefreshAt = Date.now() + (CFG.refreshMs || 60000);
+    load();
+  }, CFG.refreshMs || 60000);
 })();

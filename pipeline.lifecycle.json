@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "Factory PR Lifecycle",
+    "output": "pipeline.html",
+    "viewBox": [
+      1040,
+      600
+    ],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "main-lifecycle",
+        "label": "Main lifecycle",
+        "focus": [
+          "assigned",
+          "developing",
+          "reviewing",
+          "validating",
+          "merged"
+        ],
+        "note": "The five ordered phases every PR walks from assignment to merge."
+      },
+      {
+        "id": "fifo-mutex",
+        "label": "FIFO + mutex",
+        "focus": [
+          "approved",
+          "validating",
+          "stale"
+        ],
+        "note": "One validation at a time: approved PRs wait in FIFO order, a moving base re-queues the head."
+      },
+      {
+        "id": "recovery",
+        "label": "Recovery loops",
+        "focus": [
+          "rework",
+          "validating",
+          "reviewing",
+          "developing"
+        ],
+        "note": "Red CI or review changes loop the PR back to its agent; conflicts route through conflict rework."
+      }
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "Factory pipeline"
+    },
+    {
+      "id": "queue",
+      "label": "Approved queue (FIFO)"
+    },
+    {
+      "id": "exceptions",
+      "label": "Recovery"
+    }
+  ],
+  "states": [
+    {
+      "id": "assigned",
+      "type": "start",
+      "label": "Assigned",
+      "sublabel": "ticket picked, fresh",
+      "lane": "main",
+      "col": 0,
+      "step": "01",
+      "tag": "entry"
+    },
+    {
+      "id": "developing",
+      "type": "active",
+      "label": "Developing",
+      "sublabel": "agent pushes ai/gh-N",
+      "lane": "main",
+      "col": 1,
+      "step": "02",
+      "tag": "work"
+    },
+    {
+      "id": "reviewing",
+      "type": "decision",
+      "label": "AI review",
+      "sublabel": "verdict on the diff",
+      "lane": "main",
+      "col": 2,
+      "step": "03",
+      "tag": "check"
+    },
+    {
+      "id": "validating",
+      "type": "decision",
+      "label": "Validating",
+      "sublabel": "CI on the head, mutex",
+      "lane": "main",
+      "col": 3,
+      "step": "04",
+      "tag": "gate"
+    },
+    {
+      "id": "merged",
+      "type": "success",
+      "label": "Merged",
+      "sublabel": "green → auto-merge",
+      "lane": "main",
+      "col": 4,
+      "step": "05",
+      "tag": "done"
+    },
+    {
+      "id": "approved",
+      "type": "waiting",
+      "label": "Approved queue",
+      "sublabel": "FIFO slot, waits its turn",
+      "lane": "queue",
+      "col": 0,
+      "tag": "fifo"
+    },
+    {
+      "id": "rework",
+      "type": "failure",
+      "label": "Rework",
+      "sublabel": "changes requested / red CI",
+      "lane": "exceptions",
+      "col": 0,
+      "yOffset": 76,
+      "tag": "recoverable"
+    },
+    {
+      "id": "stale",
+      "type": "failure",
+      "label": "Stale head",
+      "sublabel": "base moved (BEHIND)",
+      "lane": "exceptions",
+      "col": 2,
+      "yOffset": 76,
+      "tag": "auto-refresh"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "assign-develop",
+      "from": "assigned",
+      "to": "developing"
+    },
+    {
+      "id": "develop-review",
+      "from": "developing",
+      "to": "reviewing"
+    },
+    {
+      "id": "review-approve",
+      "from": "reviewing",
+      "to": "approved",
+      "label": "APPROVED",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        430,
+        220
+      ]
+    },
+    {
+      "id": "approve-validate",
+      "from": "approved",
+      "to": "validating",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [
+          481,
+          307
+        ],
+        [
+          481,
+          157
+        ]
+      ]
+    },
+    {
+      "id": "validate-merge",
+      "from": "validating",
+      "to": "merged"
+    },
+    {
+      "id": "validate-stale",
+      "from": "validating",
+      "to": "stale",
+      "variant": "security",
+      "label": "base moved",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        660,
+        206
+      ],
+      "channelY": 230
+    },
+    {
+      "id": "stale-revalidate",
+      "from": "stale",
+      "to": "validating",
+      "variant": "emphasis",
+      "label": "re-run",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "via": [
+        [
+          710,
+          318
+        ],
+        [
+          710,
+          300
+        ],
+        [
+          576,
+          300
+        ],
+        [
+          576,
+          188
+        ]
+      ],
+      "labelAt": [
+        602,
+        290
+      ]
+    },
+    {
+      "id": "rework-develop",
+      "from": "rework",
+      "to": "developing",
+      "variant": "emphasis",
+      "label": "agent pushes fixes",
+      "fromSide": "left",
+      "toSide": "bottom",
+      "via": [
+        [
+          300,
+          383
+        ],
+        [
+          248,
+          383
+        ]
+      ],
+      "labelAt": [
+        270,
+        426
+      ]
+    },
+    {
+      "id": "validate-rework",
+      "from": "validating",
+      "to": "rework",
+      "variant": "security",
+      "label": "CI red",
+      "fromSide": "bottom",
+      "toSide": "right",
+      "via": [
+        [
+          556,
+          383
+        ]
+      ],
+      "labelAt": [
+        622,
+        320
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "One mutex at a time",
+      "items": [
+        "Approved PRs hold their FIFO slot; only the head is armed with ai_validating",
+        "A moved base drops the latch and re-queues in the same tick; superseded CI runs are cancelled"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Recovery loops",
+      "items": [
+        "Red CI or review changes route the PR back to its agent — pr_approved stays sticky, no re-review",
+        "Closed without merge is the only exit that never returns to the main path"
+      ]
+    }
+  ]
+}

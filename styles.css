@@ -90,3 +90,30 @@ body {
 .dot.run { background: var(--run); animation: pulse 1.6s infinite; }
 .error { color: var(--bad); padding: 10px 18px; }
 .foot { color: var(--muted); font-size: 12px; padding: 4px 18px 18px; }
+
+/* stage trail (pipeline.html lifecycle stages on each card) */
+.trail {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 3px;
+  margin: 6px 0 2px; font-size: 10px; letter-spacing: .02em;
+}
+.trail .st {
+  padding: 1px 6px; border-radius: 8px; border: 1px solid var(--border, #333);
+  color: var(--muted, #888); background: transparent; white-space: nowrap;
+}
+.trail .st.done {
+  color: var(--ok, #4ade80); border-color: var(--ok, #4ade80);
+  background: color-mix(in srgb, var(--ok, #4ade80) 12%, transparent);
+}
+.trail .st.cur {
+  color: var(--fg, #eee); border-color: var(--accent, #f59e0b);
+  background: color-mix(in srgb, var(--accent, #f59e0b) 18%, transparent);
+  font-weight: 600;
+}
+.trail .sep { color: var(--muted, #666); opacity: .7; }
+
+/* lifecycle diagram link in the topbar */
+.lifecycle-link {
+  color: var(--muted, #aaa); text-decoration: none; font-size: 13px;
+  padding: 3px 10px; border: 1px solid var(--border, #333); border-radius: 10px;
+}
+.lifecycle-link:hover { color: var(--fg, #eee); border-color: var(--accent, #f59e0b); }
